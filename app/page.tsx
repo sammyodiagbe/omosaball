@@ -3,6 +3,9 @@ import { createClient } from '@/lib/supabase/server'
 import { isAdminAuthenticated } from '@/lib/utils/admin-auth'
 import { NextGameSection } from '@/components/home'
 
+// Disable caching to always show fresh game data
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
