@@ -5,13 +5,19 @@ import { createClient } from '@/lib/supabase/client'
 
 interface TeamAssignment {
   id: string
-  player_id: string
+  player_id: string | null
+  rsvp_id: string | null
   position_slot: string
   profiles: {
     id: string
     full_name: string
     preferred_position: string
-  }
+  } | null
+  rsvps: {
+    id: string
+    guest_name: string
+    guest_position: string
+  } | null
 }
 
 interface Team {
@@ -36,11 +42,17 @@ export function useRealtimeTeams(gameId: string, initialTeams: Team[]) {
           team_assignments (
             id,
             player_id,
+            rsvp_id,
             position_slot,
             profiles (
               id,
               full_name,
               preferred_position
+            ),
+            rsvps (
+              id,
+              guest_name,
+              guest_position
             )
           )
         `)

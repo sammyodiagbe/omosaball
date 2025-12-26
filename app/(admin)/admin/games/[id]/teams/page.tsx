@@ -33,11 +33,14 @@ export default async function TeamBuilderPage({ params }: PageProps) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gameData = game as any
 
-  // Get confirmed players for this game
+  // Get confirmed players for this game (both registered and guests)
   const { data: rsvps } = await supabase
     .from('rsvps')
     .select(`
+      id,
       player_id,
+      guest_name,
+      guest_position,
       profiles (
         id,
         full_name,
@@ -48,13 +51,24 @@ export default async function TeamBuilderPage({ params }: PageProps) {
     .eq('status', 'confirmed')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const players = (rsvps as any[])
-    ?.filter((r) => r.profiles != null)
-    ?.map((r) => ({
-      id: r.profiles.id,
-      full_name: r.profiles.full_name,
-      preferred_position: r.profiles.preferred_position as Position,
-    })) || []
+  const players = (rsvps as any[])?.map((r) => {
+    // Registered player with profile
+    if (r.profiles) {
+      return {
+        id: r.profiles.id,
+        full_name: r.profiles.full_name,
+        preferred_position: r.profiles.preferred_position as Position,
+        isGuest: false,
+      }
+    }
+    // Guest player (use rsvp id as identifier)
+    return {
+      id: `guest_${r.id}`,
+      full_name: r.guest_name || 'Guest',
+      preferred_position: (r.guest_position as Position) || 'midfielder',
+      isGuest: true,
+    }
+  }) || []
 
   // Get existing team assignments
   const { data: teams } = await supabase
@@ -64,6 +78,7 @@ export default async function TeamBuilderPage({ params }: PageProps) {
       color,
       team_assignments (
         player_id,
+        rsvp_id,
         position_slot
       )
     `)
@@ -71,10 +86,11 @@ export default async function TeamBuilderPage({ params }: PageProps) {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const initialAssignments = (teams as any[])?.flatMap((team) =>
-    team.team_assignments.map((ta: { position_slot: string; player_id: string }) => ({
+    team.team_assignments.map((ta: { position_slot: string; player_id: string | null; rsvp_id: string | null }) => ({
       team_color: team.color as TeamColor,
       position_slot: ta.position_slot as Position,
-      player_id: ta.player_id,
+      // Use player_id for registered players, guest_${rsvp_id} for guests
+      player_id: ta.player_id || `guest_${ta.rsvp_id}`,
     }))
   ) || []
 

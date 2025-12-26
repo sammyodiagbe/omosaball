@@ -51,12 +51,27 @@ export async function POST(request: Request, { params }: RouteParams) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const teamMap = Object.fromEntries((teams as any[]).map((t) => [t.color, t.id]))
 
-    // Insert team assignments
-    const assignmentInserts = assignments.map((a) => ({
-      team_id: teamMap[a.team_color],
-      player_id: a.player_id,
-      position_slot: a.position_slot,
-    }))
+    // Insert team assignments (handle both registered players and guests)
+    const assignmentInserts = assignments.map((a) => {
+      const isGuest = a.player_id.startsWith('guest_')
+      if (isGuest) {
+        // Guest player - use rsvp_id
+        const rsvpId = a.player_id.replace('guest_', '')
+        return {
+          team_id: teamMap[a.team_color],
+          player_id: null,
+          rsvp_id: rsvpId,
+          position_slot: a.position_slot,
+        }
+      }
+      // Registered player - use player_id
+      return {
+        team_id: teamMap[a.team_color],
+        player_id: a.player_id,
+        rsvp_id: null,
+        position_slot: a.position_slot,
+      }
+    })
 
     if (assignmentInserts.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

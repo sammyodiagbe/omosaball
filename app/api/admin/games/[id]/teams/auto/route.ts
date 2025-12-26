@@ -18,11 +18,14 @@ export async function POST(request: Request, { params }: RouteParams) {
     const { id: gameId } = await params
     const supabase = await createServiceClient()
 
-    // Get confirmed RSVPs for this game
+    // Get confirmed RSVPs for this game (both registered and guests)
     const { data: rsvps, error: rsvpError } = await supabase
       .from('rsvps')
       .select(`
+        id,
         player_id,
+        guest_name,
+        guest_position,
         profiles (
           id,
           full_name,
@@ -37,11 +40,22 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const players: Player[] = (rsvps as any[])?.map((r) => ({
-      id: r.profiles.id,
-      full_name: r.profiles.full_name,
-      preferred_position: r.profiles.preferred_position as Position,
-    })) || []
+    const players: Player[] = (rsvps as any[])?.map((r) => {
+      // Registered player with profile
+      if (r.profiles) {
+        return {
+          id: r.profiles.id,
+          full_name: r.profiles.full_name,
+          preferred_position: r.profiles.preferred_position as Position,
+        }
+      }
+      // Guest player
+      return {
+        id: `guest_${r.id}`,
+        full_name: r.guest_name || 'Guest',
+        preferred_position: (r.guest_position as Position) || 'midfielder',
+      }
+    }) || []
 
     // Generate teams
     const assignments = generateTeams(players)

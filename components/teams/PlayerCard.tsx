@@ -8,6 +8,7 @@ interface Player {
   id: string
   full_name: string
   preferred_position: Position
+  isGuest?: boolean
 }
 
 interface PlayerCardProps {
@@ -40,9 +41,16 @@ export function PlayerCard({ player, isDragging }: PlayerCardProps) {
         ${isDragging ? 'shadow-lg opacity-90 scale-105' : ''}
       `}
     >
-      <span className="text-sm font-medium text-gray-900 truncate">
-        {player.full_name}
-      </span>
+      <div className="flex items-center gap-1.5 min-w-0">
+        <span className="text-sm font-medium text-gray-900 truncate">
+          {player.full_name}
+        </span>
+        {player.isGuest && (
+          <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+            Guest
+          </span>
+        )}
+      </div>
       <PositionBadge position={player.preferred_position} />
     </div>
   )
@@ -51,9 +59,16 @@ export function PlayerCard({ player, isDragging }: PlayerCardProps) {
 export function StaticPlayerCard({ player }: { player: Player }) {
   return (
     <div className="flex items-center justify-between gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg shadow-sm">
-      <span className="text-sm font-medium text-gray-900 truncate">
-        {player.full_name}
-      </span>
+      <div className="flex items-center gap-1.5 min-w-0">
+        <span className="text-sm font-medium text-gray-900 truncate">
+          {player.full_name}
+        </span>
+        {player.isGuest && (
+          <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded shrink-0">
+            Guest
+          </span>
+        )}
+      </div>
       <PositionBadge position={player.preferred_position} />
     </div>
   )

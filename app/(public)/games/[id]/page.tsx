@@ -40,11 +40,17 @@ export default async function GameDetailPage({ params }: PageProps) {
         team_assignments (
           id,
           player_id,
+          rsvp_id,
           position_slot,
           profiles (
             id,
             full_name,
             preferred_position
+          ),
+          rsvps (
+            id,
+            guest_name,
+            guest_position
           )
         )
       )

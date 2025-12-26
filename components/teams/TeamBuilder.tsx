@@ -24,6 +24,7 @@ export interface Player {
   id: string
   full_name: string
   preferred_position: Position
+  isGuest?: boolean
 }
 
 export interface TeamAssignment {

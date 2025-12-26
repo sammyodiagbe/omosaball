@@ -27,11 +27,18 @@ interface Team {
   team_assignments: Array<{
     id: string
     position_slot: string
+    player_id: string | null
+    rsvp_id: string | null
     profiles: {
       id: string
       full_name: string
       preferred_position: string
-    }
+    } | null
+    rsvps: {
+      id: string
+      guest_name: string
+      guest_position: string
+    } | null
   }>
 }
 
@@ -112,14 +119,25 @@ export function GameDetailRealtime({
                 <CardContent className="py-2">
                   {team.team_assignments?.length > 0 ? (
                     <ul className="space-y-1">
-                      {team.team_assignments.map((assignment) => (
-                        <li key={assignment.id} className="flex items-center justify-between text-sm">
-                          <span className="text-gray-700">{assignment.profiles.full_name}</span>
-                          <PositionBadge
-                            position={assignment.position_slot as 'defender' | 'midfielder' | 'attacker'}
-                          />
-                        </li>
-                      ))}
+                      {team.team_assignments.map((assignment) => {
+                        const isGuest = !assignment.profiles && assignment.rsvps
+                        const playerName = assignment.profiles?.full_name || assignment.rsvps?.guest_name || 'Unknown'
+                        return (
+                          <li key={assignment.id} className="flex items-center justify-between text-sm">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-gray-700">{playerName}</span>
+                              {isGuest && (
+                                <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                                  Guest
+                                </span>
+                              )}
+                            </div>
+                            <PositionBadge
+                              position={assignment.position_slot as 'defender' | 'midfielder' | 'attacker'}
+                            />
+                          </li>
+                        )
+                      })}
                     </ul>
                   ) : (
                     <p className="text-sm text-gray-400">No players assigned</p>

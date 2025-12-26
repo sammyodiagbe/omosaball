@@ -24,13 +24,19 @@ interface RSVP {
 
 interface TeamAssignment {
   id: string
-  player_id: string
+  player_id: string | null
+  rsvp_id: string | null
   position_slot: string
   profiles: {
     id: string
     full_name: string
     preferred_position: string
-  }
+  } | null
+  rsvps: {
+    id: string
+    guest_name: string
+    guest_position: string
+  } | null
 }
 
 interface Team {
@@ -199,23 +205,41 @@ export function NextGameSection({
                   </div>
                   {team.team_assignments?.length > 0 ? (
                     <ul className="space-y-1.5">
-                      {team.team_assignments.map((assignment) => (
-                        <li
-                          key={assignment.id}
-                          className="flex items-center justify-between text-sm"
-                        >
-                          <span style={{ color: colors.text }}>{assignment.profiles.full_name}</span>
-                          <span
-                            className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-                            style={{
-                              background: positionColors[assignment.position_slot]?.bg || '#F3F4F6',
-                              color: positionColors[assignment.position_slot]?.text || '#6B7280',
-                            }}
+                      {team.team_assignments.map((assignment) => {
+                        const isGuest = !assignment.profiles && assignment.rsvps
+                        const playerName = assignment.profiles?.full_name || assignment.rsvps?.guest_name || 'Unknown'
+                        return (
+                          <li
+                            key={assignment.id}
+                            className="flex items-center justify-between text-sm"
                           >
-                            {assignment.position_slot?.slice(0, 3).toUpperCase()}
-                          </span>
-                        </li>
-                      ))}
+                            <div className="flex items-center gap-1">
+                              <span style={{ color: colors.text }}>{playerName}</span>
+                              {isGuest && (
+                                <span
+                                  className="text-[8px] px-1 py-0.5 rounded"
+                                  style={{
+                                    background: team.color === 'black' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
+                                    color: colors.text,
+                                    opacity: 0.7,
+                                  }}
+                                >
+                                  G
+                                </span>
+                              )}
+                            </div>
+                            <span
+                              className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                              style={{
+                                background: positionColors[assignment.position_slot]?.bg || '#F3F4F6',
+                                color: positionColors[assignment.position_slot]?.text || '#6B7280',
+                              }}
+                            >
+                              {assignment.position_slot?.slice(0, 3).toUpperCase()}
+                            </span>
+                          </li>
+                        )
+                      })}
                     </ul>
                   ) : (
                     <p
