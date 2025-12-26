@@ -1,7 +1,6 @@
 'use client'
 
 import { useRealtimeRSVPs } from '@/lib/hooks/useRealtimeRSVPs'
-import { useRealtimeTeams } from '@/lib/hooks/useRealtimeTeams'
 import { RSVPButtons } from '@/components/games/RSVPButtons'
 import { format } from 'date-fns'
 
@@ -24,19 +23,13 @@ interface RSVP {
 
 interface TeamAssignment {
   id: string
-  player_id: string | null
-  rsvp_id: string | null
+  player_id: string
   position_slot: string
   profiles: {
     id: string
     full_name: string
     preferred_position: string
-  } | null
-  rsvps: {
-    id: string
-    guest_name: string
-    guest_position: string
-  } | null
+  }
 }
 
 interface Team {
@@ -79,13 +72,12 @@ const positionColors: Record<string, { bg: string; text: string }> = {
 export function NextGameSection({
   game,
   initialRSVPs,
-  teams: initialTeams,
+  teams,
   userId,
   userRsvpStatus,
   isAdmin = false,
 }: NextGameSectionProps) {
   const rsvps = useRealtimeRSVPs(game.id, initialRSVPs)
-  const teams = useRealtimeTeams(game.id, initialTeams)
 
   // For public: show all confirmed players (paid or not) as "confirmed"
   // For admin: show breakdown of paid vs awaiting payment
@@ -146,7 +138,7 @@ export function NextGameSection({
             {allConfirmed.length} playing
           </span>
         )}
-        <span style={{ color: 'var(--foreground-muted)' }}>/ 32 spots</span>
+        <span style={{ color: 'var(--foreground-muted)' }}>/ {game.max_players} spots</span>
       </div>
 
       {/* RSVP Section */}
@@ -205,41 +197,23 @@ export function NextGameSection({
                   </div>
                   {team.team_assignments?.length > 0 ? (
                     <ul className="space-y-1.5">
-                      {team.team_assignments.map((assignment) => {
-                        const isGuest = !assignment.profiles && assignment.rsvps
-                        const playerName = assignment.profiles?.full_name || assignment.rsvps?.guest_name || 'Unknown'
-                        return (
-                          <li
-                            key={assignment.id}
-                            className="flex items-center justify-between text-sm"
+                      {team.team_assignments.map((assignment) => (
+                        <li
+                          key={assignment.id}
+                          className="flex items-center justify-between text-sm"
+                        >
+                          <span style={{ color: colors.text }}>{assignment.profiles.full_name}</span>
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded font-medium"
+                            style={{
+                              background: positionColors[assignment.position_slot]?.bg || '#F3F4F6',
+                              color: positionColors[assignment.position_slot]?.text || '#6B7280',
+                            }}
                           >
-                            <div className="flex items-center gap-1">
-                              <span style={{ color: colors.text }}>{playerName}</span>
-                              {isGuest && (
-                                <span
-                                  className="text-[8px] px-1 py-0.5 rounded"
-                                  style={{
-                                    background: team.color === 'black' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)',
-                                    color: colors.text,
-                                    opacity: 0.7,
-                                  }}
-                                >
-                                  G
-                                </span>
-                              )}
-                            </div>
-                            <span
-                              className="text-[10px] px-1.5 py-0.5 rounded font-medium"
-                              style={{
-                                background: positionColors[assignment.position_slot]?.bg || '#F3F4F6',
-                                color: positionColors[assignment.position_slot]?.text || '#6B7280',
-                              }}
-                            >
-                              {assignment.position_slot?.slice(0, 3).toUpperCase()}
-                            </span>
-                          </li>
-                        )
-                      })}
+                            {assignment.position_slot?.slice(0, 3).toUpperCase()}
+                          </span>
+                        </li>
+                      ))}
                     </ul>
                   ) : (
                     <p
