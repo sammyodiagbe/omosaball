@@ -100,7 +100,7 @@ export default async function DashboardPage() {
                     <CardContent className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold text-gray-900">
-                          {format(new Date(game.date), 'EEEE, MMMM d')}
+                          {format(new Date(game.date + 'T00:00:00'), 'EEEE, MMMM d')}
                         </p>
                         <p className="text-sm text-gray-600">
                           {game.time} at {game.location}

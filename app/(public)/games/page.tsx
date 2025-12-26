@@ -83,7 +83,7 @@ export default async function GamesPage() {
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <h2 className="text-xl font-semibold text-gray-900">
-                          {format(new Date(game.date), 'EEEE, MMMM d')}
+                          {format(new Date(game.date + 'T00:00:00'), 'EEEE, MMMM d')}
                         </h2>
                         {game.userRsvpStatus === 'confirmed' && (
                           <Badge variant="success">You&apos;re In</Badge>

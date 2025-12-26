@@ -106,7 +106,7 @@ export default async function AdminGameDetailPage({ params }: PageProps) {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="font-[family-name:var(--font-display)] text-2xl font-semibold">
-                  {format(new Date(gameData.date), 'EEEE, MMMM d, yyyy')}
+                  {format(new Date(gameData.date + 'T00:00:00'), 'EEEE, MMMM d, yyyy')}
                 </h1>
                 {gameData.status === 'cancelled' && (
                   <span

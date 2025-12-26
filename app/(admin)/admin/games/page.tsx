@@ -126,7 +126,7 @@ export default async function AdminGamesPage() {
         ) : (
           <div className="space-y-3">
             {gamesWithCounts.map((game) => {
-              const isPast = new Date(game.date) < new Date()
+              const isPast = new Date(game.date + 'T23:59:59') < new Date()
               return (
                 <div
                   key={game.id}
@@ -140,7 +140,7 @@ export default async function AdminGamesPage() {
                           className="font-[family-name:var(--font-display)] text-lg font-semibold"
                           style={{ color: 'var(--foreground)' }}
                         >
-                          {format(new Date(game.date), 'EEEE, MMMM d, yyyy')}
+                          {format(new Date(game.date + 'T00:00:00'), 'EEEE, MMMM d, yyyy')}
                         </h2>
                         {game.status === 'cancelled' && (
                           <span

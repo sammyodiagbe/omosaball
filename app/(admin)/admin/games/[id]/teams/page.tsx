@@ -136,7 +136,7 @@ export default async function TeamBuilderPage({ params }: PageProps) {
             className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight"
             style={{ color: 'var(--foreground)' }}
           >
-            Build Teams — {format(new Date(gameData.date), 'EEEE, MMMM d')}
+            Build Teams — {format(new Date(gameData.date + 'T00:00:00'), 'EEEE, MMMM d')}
           </h1>
           <p className="mt-1 text-sm" style={{ color: 'var(--foreground-muted)' }}>
             {players.length} confirmed players • Drag and drop to assign teams

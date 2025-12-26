@@ -101,7 +101,7 @@ export default async function GameDetailPage({ params }: PageProps) {
         <Card className="mb-6">
           <CardContent className="py-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {format(new Date(gameData.date), 'EEEE, MMMM d, yyyy')}
+              {format(new Date(gameData.date + 'T00:00:00'), 'EEEE, MMMM d, yyyy')}
             </h1>
             <p className="text-lg text-gray-600 mb-4">
               {gameData.time} at {gameData.location}

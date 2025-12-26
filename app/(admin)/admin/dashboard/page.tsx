@@ -188,7 +188,7 @@ export default async function AdminDashboardPage() {
                   Next Game
                 </p>
                 <p className="font-[family-name:var(--font-display)] text-2xl font-semibold">
-                  {format(new Date(gameData.date), 'EEEE, MMMM d')}
+                  {format(new Date(gameData.date + 'T00:00:00'), 'EEEE, MMMM d')}
                 </p>
                 <p className="mt-2 text-sm" style={{ color: 'var(--foreground-subtle)' }}>
                   {gameData.time} at {gameData.location}

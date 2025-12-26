@@ -2,7 +2,7 @@
 
 import { useRealtimeRSVPs } from '@/lib/hooks/useRealtimeRSVPs'
 import { RSVPButtons } from '@/components/games/RSVPButtons'
-import { format } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 
 interface RSVP {
   id: string
@@ -110,7 +110,7 @@ export function NextGameSection({
           className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight md:text-4xl"
           style={{ color: 'var(--foreground)' }}
         >
-          {format(new Date(game.date), 'EEEE, MMMM d')}
+          {format(new Date(game.date + 'T00:00:00'), 'EEEE, MMMM d')}
         </h2>
         <p className="mt-2 text-lg" style={{ color: 'var(--foreground-muted)' }}>
           {game.time} at {game.location}
