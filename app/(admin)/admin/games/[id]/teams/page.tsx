@@ -48,11 +48,13 @@ export default async function TeamBuilderPage({ params }: PageProps) {
     .eq('status', 'confirmed')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const players = (rsvps as any[])?.map((r) => ({
-    id: r.profiles.id,
-    full_name: r.profiles.full_name,
-    preferred_position: r.profiles.preferred_position as Position,
-  })) || []
+  const players = (rsvps as any[])
+    ?.filter((r) => r.profiles != null)
+    ?.map((r) => ({
+      id: r.profiles.id,
+      full_name: r.profiles.full_name,
+      preferred_position: r.profiles.preferred_position as Position,
+    })) || []
 
   // Get existing team assignments
   const { data: teams } = await supabase
