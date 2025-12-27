@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createServiceClient } from '@/lib/supabase/server'
 import { isAdminAuthenticated } from '@/lib/utils/admin-auth'
 
@@ -75,10 +76,32 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     const { id: gameId, playerId } = await params
     const supabase = await createServiceClient()
 
-    // Check if playerId is a UUID (rsvp_id for guests) or player_id
-    // Try to delete by rsvp id first, then by player_id
-    let error = null
+    // Get team IDs for this game to delete team assignments
+    const { data: teams } = await supabase
+      .from('teams')
+      .select('id')
+      .eq('game_id', gameId)
 
+    const teamIds = teams?.map(t => t.id) || []
+
+    // Delete team assignments first (for both registered players and guests)
+    if (teamIds.length > 0) {
+      // Delete by player_id
+      await supabase
+        .from('team_assignments')
+        .delete()
+        .in('team_id', teamIds)
+        .eq('player_id', playerId)
+
+      // Also delete by rsvp_id (for guests)
+      await supabase
+        .from('team_assignments')
+        .delete()
+        .in('team_id', teamIds)
+        .eq('rsvp_id', playerId)
+    }
+
+    // Now delete the RSVP
     // First try as rsvp_id (for guests)
     const { error: rsvpError, count } = await supabase
       .from('rsvps')
@@ -92,12 +115,16 @@ export async function DELETE(request: Request, { params }: RouteParams) {
         .delete()
         .eq('game_id', gameId)
         .eq('player_id', playerId)
-      error = playerError
+
+      if (playerError) {
+        return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
+      }
     }
 
-    if (error) {
-      return NextResponse.json({ error: 'Failed to remove player' }, { status: 500 })
-    }
+    // Revalidate all relevant pages
+    revalidatePath(`/admin/games/${gameId}`)
+    revalidatePath('/')
+    revalidatePath('/games')
 
     return NextResponse.json({ success: true })
   } catch (error) {

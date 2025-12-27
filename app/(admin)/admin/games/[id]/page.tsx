@@ -6,6 +6,9 @@ import { GamePlayersRealtime } from '@/components/admin/GamePlayersRealtime'
 import { GameActions } from '@/components/admin/GameActions'
 import { format } from 'date-fns'
 
+// Disable caching to always show fresh data
+export const dynamic = 'force-dynamic'
+
 interface PageProps {
   params: Promise<{ id: string }>
 }

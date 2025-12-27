@@ -1,0 +1,4 @@
+-- Enable REPLICA IDENTITY FULL for realtime DELETE events to include old record data
+ALTER TABLE rsvps REPLICA IDENTITY FULL;
+ALTER TABLE teams REPLICA IDENTITY FULL;
+ALTER TABLE team_assignments REPLICA IDENTITY FULL;
